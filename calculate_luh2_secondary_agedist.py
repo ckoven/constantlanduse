@@ -86,7 +86,8 @@ age_mature=94
 year_luh2_start = 850
 
 # this is the year that you want to calculate a steady-state logging rate for
-year_to_calc_steadystate = 2000
+#year_to_calc_steadystate = 2000
+year_to_calc_steadystate = 1850
 
 
 # In[5]:
@@ -330,8 +331,9 @@ fout['YEAR'][:] = np.arange(n_ts_out)
 # In[23]:
 
 
+#fout.to_netcdf('LUH2_states_transitions_management.timeseries_4x5_hist_steadystate_'+str(year_to_calc_steadystate)+'_'+str(date.today())+'.nc')
 fout.to_netcdf('LUH2_states_transitions_management.timeseries_4x5_hist_steadystate_'+str(year_to_calc_steadystate)+'_'+str(date.today())+'.nc')
-
+fout.to_netcdf('LUH2_states_transitions_management.timeseries_ne30_hist_steadystate_'+str(year_to_calc_steadystate)+'_'+str(date.today())+'.nc')
 
 # In[ ]:
 
