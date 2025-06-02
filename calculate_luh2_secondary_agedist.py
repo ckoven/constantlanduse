@@ -248,7 +248,7 @@ if reg_grid:
                 sec_mature_harvestrate_rel[j,i] = 0.05  ### set to some nominal value
 else:
     for i in range(IM):
-        if sectot.sel(lndgrid=j,time=time) > 0.:
+        if sectot.sel(lndgrid=i,time=time) > 0.:
             y = age_dist_cum_norm.isel(lndgrid=i,time=time,age=slice(0,n_age_max)).data
             try:
                 params = curve_fit(piecewise_exponential_cumulative, x, y, p0=[0.01,0.01], bounds=[0,1])
@@ -314,11 +314,14 @@ for var in matching_vars:
 
 
 # now rewrite the secondary harvest rates based on the fits above
-
-for i_ts in range(n_ts_out):
-    fout.secyf_harv[i_ts,:,:] = sec_young_harvestrate_rel * (fout.secdf.isel(time=0) + fout.secdn.isel(time=0)).data
-    fout.secmf_harv[i_ts,:,:] = sec_mature_harvestrate_rel * (fout.secdf.isel(time=0) + fout.secdn.isel(time=0)).data
-
+if reg_grid:
+    for i_ts in range(n_ts_out):
+        fout.secyf_harv[i_ts,:,:] = sec_young_harvestrate_rel * (fout.secdf.isel(time=0) + fout.secdn.isel(time=0)).data
+        fout.secmf_harv[i_ts,:,:] = sec_mature_harvestrate_rel * (fout.secdf.isel(time=0) + fout.secdn.isel(time=0)).data
+else:
+    for i_ts in range(n_ts_out):
+        fout.secyf_harv[i_ts,:] = sec_young_harvestrate_rel * (fout.secdf.isel(time=0) + fout.secdn.isel(time=0)).data
+        fout.secmf_harv[i_ts,:] = sec_mature_harvestrate_rel * (fout.secdf.isel(time=0) + fout.secdn.isel(time=0)).data
 
 
 # In[22]:
@@ -332,7 +335,7 @@ fout['YEAR'][:] = np.arange(n_ts_out)
 
 
 #fout.to_netcdf('LUH2_states_transitions_management.timeseries_4x5_hist_steadystate_'+str(year_to_calc_steadystate)+'_'+str(date.today())+'.nc')
-fout.to_netcdf('LUH2_states_transitions_management.timeseries_4x5_hist_steadystate_'+str(year_to_calc_steadystate)+'_'+str(date.today())+'.nc')
+#fout.to_netcdf('LUH2_states_transitions_management.timeseries_4x5_hist_steadystate_'+str(year_to_calc_steadystate)+'_'+str(date.today())+'.nc')
 fout.to_netcdf('LUH2_states_transitions_management.timeseries_ne30_hist_steadystate_'+str(year_to_calc_steadystate)+'_'+str(date.today())+'.nc')
 
 # In[ ]:
