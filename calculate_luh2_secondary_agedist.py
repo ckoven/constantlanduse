@@ -1,7 +1,5 @@
 #!/usr/bin/env python
-# coding: utf-8
 
-# In[1]:
 import sys
 
 import xarray as xr
@@ -10,10 +8,6 @@ import matplotlib.pyplot as plt
 
 from scipy.optimize import curve_fit
 from datetime import date
-
-
-# In[2]:
-
 
 def piecewise_exponential_cumulative(ages, k1, k2, m=94):
     ### this function calculates a piecewise exponential function, whose integral equals one
@@ -43,8 +37,6 @@ def piecewise_exponential_cumulative(ages, k1, k2, m=94):
     return(vals_cumulative)
 
 
-# In[3]:
-
 if len(sys.argv) < 2:
     print("Provide a luh2 ")
     sys.exit(4)
@@ -53,9 +45,6 @@ fin_luh2 = xr.open_dataset(sys.argv[1])
 
 # fin_luh2['time'] = fin_luh2.time+850
 
-# In[4]:
-
-
 nages = 300
 ntime_total = len(fin_luh2.time)
 print(fin_luh2.data_vars)
@@ -63,7 +52,7 @@ if "lon" in fin_luh2.coords or "lsmlon" in fin_luh2.coords:
     reg_grid = True
     IM = len(fin_luh2.lon)
     JM = len(fin_luh2.lat)
-    if "lsmlon" in fin_luh2.coords:
+    if "lsmlon" in fin_luh2.dims:
         latname = "lsmlat"
         lonname = "lsmlon"
         lon_coord = fin_luh2.lsmlon
@@ -87,16 +76,12 @@ year_luh2_start = 850
 
 # this is the year that you want to calculate a steady-state logging rate for
 #year_to_calc_steadystate = 2000
-year_to_calc_steadystate = 1850
+year_to_calc_steadystate = 1700
 
 
-# In[5]:
-
+print(fin_luh2.dims)
 
 area_prim = fin_luh2.primf + fin_luh2.primn
-
-
-# In[6]:
 
 
 rate_newsec_creation = fin_luh2.primf_harv + fin_luh2.primn_harv + fin_luh2.primf_to_secdn + fin_luh2.primn_to_secdf  + fin_luh2.urban_to_secdf  + fin_luh2.urban_to_secdn  + fin_luh2.c3ann_to_secdf  + fin_luh2.c3ann_to_secdn  + fin_luh2.c4ann_to_secdf  + fin_luh2.c4ann_to_secdn  + fin_luh2.c3per_to_secdf  + fin_luh2.c3per_to_secdn  + fin_luh2.c4per_to_secdf  + fin_luh2.c4per_to_secdn  + fin_luh2.c3nfx_to_secdf  + fin_luh2.c3nfx_to_secdn  + fin_luh2.pastr_to_secdf  + fin_luh2.pastr_to_secdn  + fin_luh2.range_to_secdf  + fin_luh2.range_to_secdn 
@@ -110,7 +95,6 @@ secnf_harv = fin_luh2.secnf_harv
 sectot = fin_luh2.secdf + fin_luh2.secdn
 print(sectot)
 #sys.exit(4)
-# In[7]:
 
 if reg_grid:
     ### initialize the secondary forest age as having all zero age at start of dataset
@@ -131,18 +115,6 @@ k_secloss_dist = generic_zeros_array.copy()#xr.DataArray(np.zeros((ntime_total,J
 k_secyhar_dist = generic_zeros_array.copy()#xr.DataArray(np.zeros((ntime_total,JM,IM)), dims=['time',latname,lonname], coords=[fin_luh2.time, fin_luh2.lsmlat, fin_luh2.lsmlon])
 k_secthar_dist = generic_zeros_array.copy()#xr.DataArray(np.zeros((ntime_total,JM,IM)), dims=['time',latname,lonname], coords=[fin_luh2.time, fin_luh2.lsmlat, fin_luh2.lsmlon])
 k_secmhar_dist = generic_zeros_array.copy()#xr.DataArray(np.zeros((ntime_total,JM,IM)), dims=['time',latname,lonname], coords=[fin_luh2.time, fin_luh2.lsmlat, fin_luh2.lsmlon])
-
-
-# In[8]:
-
-
-
-
-
-
-
-
-# In[9]:
 
 
 for t in range(ntime_total-1):
@@ -184,32 +156,19 @@ for t in range(ntime_total-1):
         k_secmhar_dist[t,:] = k_secmhar        
 
 
-# In[10]:
-
-
 age_dist_cum = age_dist.cumsum(dim='age')
-
-
-# In[11]:
 
 
 mean_age = (age_dist * ages).sum(dim='age') / age_dist.sum(dim='age')
 
 
-# In[12]:
-
-
 age_dist_cum_norm = age_dist_cum / sectot
-
-
-# In[13]:
 
 
 median_secondary_age = np.abs(age_dist_cum_norm.fillna(0.) - 0.5).argmin(dim='age', skipna=True)
 median_secondary_age = (median_secondary_age * sectot / sectot)
 
 
-# In[14]:
 if reg_grid:
     generic_nan_array = xr.DataArray(np.nan * np.ones([JM,IM]), dims=[latname,lonname], coords=[fin_luh2.lat, fin_luh2.lon])
 else:
@@ -262,25 +221,13 @@ else:
         
 
 
-# In[15]:
-
-
 sec_young_harvestrate_rel.plot()
-
-
-# In[16]:
 
 
 sec_mature_harvestrate_rel.plot()
 
 
-# In[17]:
-
-
 fails.plot()
-
-
-# In[18]:
 
 
 # replace nans with zeros in harvest rates
@@ -288,14 +235,8 @@ sec_young_harvestrate_rel = sec_young_harvestrate_rel.fillna(0.)
 sec_mature_harvestrate_rel = sec_mature_harvestrate_rel.fillna(0.)
 
 
-# In[19]:
-
-
 n_ts_out = 500
 fout = fin_luh2.sel(time=[time]*n_ts_out)
-
-
-# In[20]:
 
 
 # first zero all transitions
@@ -310,9 +251,6 @@ for var in matching_vars:
     fout[var] = fout[var] * 0.
 
 
-# In[21]:
-
-
 # now rewrite the secondary harvest rates based on the fits above
 if reg_grid:
     for i_ts in range(n_ts_out):
@@ -324,22 +262,12 @@ else:
         fout.secmf_harv[i_ts,:] = sec_mature_harvestrate_rel * (fout.secdf.isel(time=0) + fout.secdn.isel(time=0)).data
 
 
-# In[22]:
-
-
 fout['time'] = np.arange(n_ts_out)
 fout['YEAR'][:] = np.arange(n_ts_out)
-
-
-# In[23]:
 
 
 #fout.to_netcdf('LUH2_states_transitions_management.timeseries_4x5_hist_steadystate_'+str(year_to_calc_steadystate)+'_'+str(date.today())+'.nc')
 #fout.to_netcdf('LUH2_states_transitions_management.timeseries_4x5_hist_steadystate_'+str(year_to_calc_steadystate)+'_'+str(date.today())+'.nc')
 fout.to_netcdf('LUH2_states_transitions_management.timeseries_ne30_hist_steadystate_'+str(year_to_calc_steadystate)+'_'+str(date.today())+'.nc')
-
-# In[ ]:
-
-
 
 
